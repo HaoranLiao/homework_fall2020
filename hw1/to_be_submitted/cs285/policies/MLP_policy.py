@@ -98,7 +98,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         loc = self.mean_net(observation)
         scale = torch.exp(self.logstd)
         return torch.distributions.normal.Normal(loc, scale).rsample()
-        raise NotImplementedError
+        # raise NotImplementedError
 
 
 #####################################################
