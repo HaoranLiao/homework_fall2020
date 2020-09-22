@@ -161,9 +161,11 @@ class MLPPolicyPG(MLPPolicy):
             # baseline_loss = TODO
             baseline_loss = 
 
-            # TODO: optimize `baseline_loss` using `self.baseline_optimizer`
+            # TODO: optimize `baseline_loss` using `self.baseline_optimizer` ------------------------------------
             # HINT: remember to `zero_grad` first
-            TODO
+            self.baseline_optimizer.zero_grad()
+            baseline_loss.backward()
+            self.baseline_optimizer.step()
 
         train_log = {
             'Training Loss': ptu.to_numpy(loss),
