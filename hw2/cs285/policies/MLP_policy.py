@@ -135,7 +135,7 @@ class MLPPolicyPG(MLPPolicy):
         actions = ptu.from_numpy(actions)
         advantages = ptu.from_numpy(advantages)
 
-        # TODO: compute the loss that should be optimized when training with policy gradient
+        # TODO: compute the loss that should be optimized when training with policy gradient --------------------------------
         # HINT1: Recall that the expression that we want to MAXIMIZE
             # is the expectation over collected trajectories of:
             # sum_{t=0}^{T-1} [grad [log pi(a_t|s_t) * (Q_t - b_t)]]
@@ -143,7 +143,7 @@ class MLPPolicyPG(MLPPolicy):
             # by the `forward` method
         # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
 
-        # loss = TODO -------------------------------------------------
+        # loss = TODO 
         m = self(observations)
         ac = m.sample()
         loss = -torch.sum(m.log_prob(ac) * advantages)
