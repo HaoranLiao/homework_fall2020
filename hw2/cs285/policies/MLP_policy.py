@@ -6,7 +6,6 @@ from torch import optim
 import numpy as np
 import torch
 from torch import distributions
-from typing import Any
 
 from cs285.infrastructure import pytorch_util as ptu
 from cs285.policies.base_policy import BasePolicy
@@ -92,8 +91,10 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         else:
             observation = obs[None]
 
-        action = self(torch.Tensor(observation))
-        return action.detach().numpy()
+        observation = ptu.from_numpy(observation)
+        action_distribution = self(observation)
+        action = action_distribution.sample()  # don't bother with rsample
+        return ptu.to_numpy(action)
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -104,10 +105,21 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # through it. For example, you can return a torch.FloatTensor. You can also
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
-    def forward(self, observation: torch.FloatTensor) -> Any:
-        loc = self.mean_net(observation)
-        scale = torch.exp(self.logstd)
-        return torch.distributions.normal.Normal(loc, scale).rsample()
+    def forward(self, observation: torch.FloatTensor):
+        if self.discrete:
+            logits = self.logits_na(observation)
+            action_distribution = distributions.Categorical(logits=logits)
+            return action_distribution
+        else:
+            batch_mean = self.mean_net(observation)
+            scale_tril = torch.diag(torch.exp(self.logstd))
+            batch_dim = batch_mean.shape[0]
+            batch_scale_tril = scale_tril.repeat(batch_dim, 1, 1)
+            action_distribution = distributions.MultivariateNormal(
+                batch_mean,
+                scale_tril=batch_scale_tril,
+            )
+            return action_distribution
 
 
 #####################################################
@@ -132,7 +144,9 @@ class MLPPolicyPG(MLPPolicy):
         # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
 
         # loss = TODO -------------------------------------------------
-        loss = -torch.sum(torch.log(self(observations)) * advantages)
+        m = self(observations)
+        ac = m.sample()
+        loss = -torch.sum(m.log_prob(ac) * advantages)
 
         # TODO: optimize `loss` using `self.optimizer` ----------------------------------------------------
         # HINT: remember to `zero_grad` first

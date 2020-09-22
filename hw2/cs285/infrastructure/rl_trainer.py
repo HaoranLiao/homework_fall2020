@@ -167,11 +167,6 @@ class RL_Trainer(object):
             train_video_paths: paths which also contain videos for visualization purposes
         """
 
-        if itr == 0:
-            with open(self.params['expert_data'], 'rb') as f:
-                loaded_paths = pk.load(f)
-            return loaded_paths, 0, None
-
         print("\nCollecting data to be used for training...")
         paths, envsteps_this_batch = utils.sample_trajectories(self.env, collect_policy, batch_size, self.params['ep_len'])
 
