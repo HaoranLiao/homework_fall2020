@@ -3,13 +3,14 @@ import itertools
 from torch import nn
 from torch.nn import functional as F
 from torch import optim
-
 import numpy as np
 import torch
 from torch import distributions
+from typing import Any
 
 from cs285.infrastructure import pytorch_util as ptu
 from cs285.policies.base_policy import BasePolicy
+from cs285.infrastructure import utils
 
 
 class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
@@ -114,7 +115,6 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
 class MLPPolicyPG(MLPPolicy):
     def __init__(self, ac_dim, ob_dim, n_layers, size, **kwargs):
-
         super().__init__(ac_dim, ob_dim, n_layers, size, **kwargs)
         self.baseline_loss = nn.MSELoss()
 
@@ -131,22 +131,25 @@ class MLPPolicyPG(MLPPolicy):
             # by the `forward` method
         # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
 
-        # loss = TODO
-        loss = -torch.sum()
+        # loss = TODO -------------------------------------------------
+        loss = -torch.sum(torch.log(self(observations)) * advantages)
 
-
-        # TODO: optimize `loss` using `self.optimizer`
+        # TODO: optimize `loss` using `self.optimizer` ----------------------------------------------------
         # HINT: remember to `zero_grad` first
-        TODO
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         if self.nn_baseline:
-            ## TODO: normalize the q_values to have a mean of zero and a standard deviation of one
+            ## TODO: normalize the q_values to have a mean of zero and a standard deviation of one ------------------------------
             ## HINT: there is a `normalize` function in `infrastructure.utils`
-            targets = TODO
+            # targets = TODO
+            targets = utils.normalize(q_values, 0, 1)
             targets = ptu.from_numpy(targets)
 
-            ## TODO: use the `forward` method of `self.baseline` to get baseline predictions
-            baseline_predictions = TODO
+            ## TODO: use the `forward` method of `self.baseline` to get baseline predictions ---------------------------
+            # baseline_predictions = TODO
+            baseline_predictions = self.baseline(observations)
             
             ## avoid any subtle broadcasting bugs that can arise when dealing with arrays of shape
             ## [ N ] versus shape [ N x 1 ]
@@ -155,7 +158,8 @@ class MLPPolicyPG(MLPPolicy):
             
             # TODO: compute the loss that should be optimized for training the baseline MLP (`self.baseline`)
             # HINT: use `F.mse_loss`
-            baseline_loss = TODO
+            # baseline_loss = TODO
+            baseline_loss = 
 
             # TODO: optimize `baseline_loss` using `self.baseline_optimizer`
             # HINT: remember to `zero_grad` first
