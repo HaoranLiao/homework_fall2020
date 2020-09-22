@@ -132,9 +132,10 @@ class PGAgent(BaseAgent):
             Output: list where each index t contains sum_{t'=0}^T gamma^t' r_{t'}
         """
 
-        # TODO: create list_of_discounted_returns
+        # TODO: create list_of_discounted_returns ---------------------------------
         # Hint: note that all entries of this output are equivalent
             # because each sum is from 0 to T (and doesnt involve t)
+        list_of_discounted_returns = [sum([r * (self.gamma**ind) for ind, r in enumerate(rewards)])] * len(rewards)
 
         return list_of_discounted_returns
 
@@ -145,11 +146,14 @@ class PGAgent(BaseAgent):
             -and returns a list where the entry in each index t' is sum_{t'=t}^T gamma^(t'-t) * r_{t'}
         """
 
-        # TODO: create `list_of_discounted_returns`
+        # TODO: create `list_of_discounted_returns` -------------------------------
         # HINT1: note that each entry of the output should now be unique,
             # because the summation happens over [t, T] instead of [0, T]
         # HINT2: it is possible to write a vectorized solution, but a solution
             # using a for loop is also fine
+        list_of_discounted_cumsums = []
+        for ind, _ in enumerate(rewards):
+            list_of_discounted_cumsums.append(sum([r * (self.gamma**i) for i, r in enumerate(rewards[ind:])]))
 
         return list_of_discounted_cumsums
 
