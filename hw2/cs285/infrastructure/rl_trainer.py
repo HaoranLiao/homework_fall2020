@@ -167,6 +167,8 @@ class RL_Trainer(object):
             train_video_paths: paths which also contain videos for visualization purposes
         """
 
+        # if your load_initial_expertdata is None, then you need to collect new trajectories at *every* iteration
+
         print("\nCollecting data to be used for training...")
         paths, envsteps_this_batch = utils.sample_trajectories(self.env, collect_policy, batch_size, self.params['ep_len'])
 
@@ -176,8 +178,6 @@ class RL_Trainer(object):
         if self.log_video:
             print('\nCollecting train rollouts to be used for saving videos...')
             train_video_paths = utils.sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
-
-        # if your load_initial_expertdata is None, then you need to collect new trajectories at *every* iteration
         return paths, envsteps_this_batch, train_video_paths
 
     def train_agent(self):

@@ -143,7 +143,7 @@ class MLPPolicyPG(MLPPolicy):
             # by the `forward` method
         # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
 
-        # loss = TODO 
+        # loss = TODO
         m = self(observations)
         ac = m.sample()
         loss = -torch.sum(m.log_prob(ac) * advantages)
