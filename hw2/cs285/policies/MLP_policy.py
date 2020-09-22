@@ -131,7 +131,9 @@ class MLPPolicyPG(MLPPolicy):
             # by the `forward` method
         # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
 
-        loss = TODO
+        # loss = TODO
+        loss = -torch.sum()
+
 
         # TODO: optimize `loss` using `self.optimizer`
         # HINT: remember to `zero_grad` first
