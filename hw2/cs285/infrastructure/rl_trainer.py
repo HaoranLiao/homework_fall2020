@@ -156,6 +156,17 @@ class RL_Trainer(object):
             collect_policy,
             batch_size,
     ):
+        """
+        :param itr:
+        :param load_initial_expertdata:  path to expert data pkl file
+        :param collect_policy:  the current policy using which we collect data
+        :param batch_size:  the number of transitions we collect
+        :return:
+            paths: a list trajectories
+            envsteps_this_batch: the sum over the numbers of environment steps in paths
+            train_video_paths: paths which also contain videos for visualization purposes
+        """
+
         if itr == 0:
             with open(self.params['expert_data'], 'rb') as f:
                 loaded_paths = pk.load(f)
@@ -165,6 +176,8 @@ class RL_Trainer(object):
         paths, envsteps_this_batch = utils.sample_trajectories(self.env, collect_policy, batch_size,
                                                                self.params['ep_len'])
 
+        # collect more rollouts with the same policy, to be saved as videos in tensorboard
+        # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
         train_video_paths = None
         if self.log_video:
             print('\nCollecting train rollouts to be used for saving videos...')
