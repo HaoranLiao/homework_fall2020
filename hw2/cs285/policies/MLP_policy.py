@@ -161,7 +161,7 @@ class MLPPolicyPG(MLPPolicy):
 
             ## TODO: use the `forward` method of `self.baseline` to get baseline predictions ---------------------------
             # baseline_predictions = TODO
-            baseline_predictions = self.baseline(observations)
+            baseline_predictions = torch.squeeze(self.baseline(observations))
             
             ## avoid any subtle broadcasting bugs that can arise when dealing with arrays of shape
             ## [ N ] versus shape [ N x 1 ]
