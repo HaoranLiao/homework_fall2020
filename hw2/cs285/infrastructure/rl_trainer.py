@@ -149,7 +149,7 @@ class RL_Trainer(object):
                 if self.params['save_params']:
                     self.agent.save('{}/agent_itr_{}.pt'.format(self.params['logdir'], itr))
 
-        np.save('/Users/haoran/Documents/GitHub/homework_fall2020/hw2/data/q1_sb_rtg_na.npy', np.array(learning_curve))
+        np.save('/Users/haoran/Documents/GitHub/homework_fall2020/hw2/data/q1_lb_rtg_na.npy', np.array(learning_curve))
 
     ####################################
     ####################################
