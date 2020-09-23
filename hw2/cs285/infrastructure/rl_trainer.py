@@ -106,6 +106,7 @@ class RL_Trainer(object):
         self.total_envsteps = 0
         self.start_time = time.time()
 
+        learning_curve = []
         for itr in range(n_iter):
             print("\n\n********** Iteration %i ************"%itr)
 
@@ -141,10 +142,14 @@ class RL_Trainer(object):
             if self.logvideo or self.logmetrics:
                 # perform logging
                 print('\nBeginning logging procedure...')
-                self.perform_logging(itr, paths, eval_policy, train_video_paths, train_logs)
+                learning_curve.append(
+                    self.perform_logging(itr, paths, eval_policy, train_video_paths, train_logs)
+                )
 
                 if self.params['save_params']:
                     self.agent.save('{}/agent_itr_{}.pt'.format(self.params['logdir'], itr))
+
+        np.save('/Users/haoran/Documents/GitHub/homework_fall2020/hw2/data/q1_sb_rtg_na.npy', np.array(learning_curve))
 
     ####################################
     ####################################
@@ -257,3 +262,4 @@ class RL_Trainer(object):
 
             self.logger.flush()
 
+            return np.mean(eval_returns)

@@ -106,7 +106,7 @@ class PGAgent(BaseAgent):
             ## and a standard deviation of one
             ## HINT: there is a `normalize` function in `infrastructure.utils`
             # advantages = TODO
-            advantages = utils.normalize(advantages, 0 , 1)
+            advantages = utils.normalize(advantages, np.mean(advantages), np.std(advantages))
 
         return advantages
 
@@ -153,7 +153,9 @@ class PGAgent(BaseAgent):
             # using a for loop is also fine
         list_of_discounted_cumsums = []
         for ind, _ in enumerate(rewards):
-            list_of_discounted_cumsums.append(sum([r * (self.gamma**i) for i, r in enumerate(rewards[ind:])]))
+            list_of_discounted_cumsums.append(
+                sum([r * (self.gamma**i) for i, r in enumerate(rewards[ind:])])
+            )
 
         return list_of_discounted_cumsums
 

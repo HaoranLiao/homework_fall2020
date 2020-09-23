@@ -144,9 +144,7 @@ class MLPPolicyPG(MLPPolicy):
         # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
 
         # loss = TODO
-        m = self(observations)
-        ac = m.sample()
-        loss = -torch.sum(m.log_prob(ac) * advantages)
+        loss = -torch.sum(self(observations).log_prob(actions) * advantages)
 
         # TODO: optimize `loss` using `self.optimizer` ----------------------------------------------------
         # HINT: remember to `zero_grad` first
@@ -158,7 +156,7 @@ class MLPPolicyPG(MLPPolicy):
             ## TODO: normalize the q_values to have a mean of zero and a standard deviation of one ------------------------------
             ## HINT: there is a `normalize` function in `infrastructure.utils`
             # targets = TODO
-            targets = utils.normalize(q_values, 0, 1)
+            targets = utils.normalize(q_values, np.mean(q_values), np.std(q_values))
             targets = ptu.from_numpy(targets)
 
             ## TODO: use the `forward` method of `self.baseline` to get baseline predictions ---------------------------
@@ -173,7 +171,7 @@ class MLPPolicyPG(MLPPolicy):
             # TODO: compute the loss that should be optimized for training the baseline MLP (`self.baseline`)
             # HINT: use `F.mse_loss`
             # baseline_loss = TODO
-            baseline_loss = F.mse_loss(baseline_predictions, targets)
+            baseline_loss = self.baseline_loss(baseline_predictions, targets)
 
             # TODO: optimize `baseline_loss` using `self.baseline_optimizer` ------------------------------------
             # HINT: remember to `zero_grad` first
