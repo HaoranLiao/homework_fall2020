@@ -58,6 +58,7 @@ class DQNAgent(object):
                 # with probability eps (see np.random.random())
                 # OR if your current step number (see self.t) is less that self.learning_starts
             # action = TODO -----------------
+            action = np.random.randint(0, high=self.num_actions)
         else:
             # HINT: Your actor will take in multiple previous observations ("frames") in order
                 # to deal with the partial observability of the environment. Get the most recent 
@@ -95,15 +96,17 @@ class DQNAgent(object):
                 and self.replay_buffer.can_sample(self.batch_size)
         ):
 
-            # TODO fill in the call to the update function using the appropriate tensors
+            # TODO fill in the call to the update function using the appropriate tensors ----------------------
             log = self.critic.update(
-                TODO
+                # TODO
+                ob_no, ac_na, next_ob_no, re_n, terminal_n
             )
 
-            # TODO update the target network periodically 
+            # TODO update the target network periodically --------------------
             # HINT: your critic already has this functionality implemented
             if self.num_param_updates % self.target_update_freq == 0:
-                TODO
+                # TODO
+                self.critic.update_target_network()
 
             self.num_param_updates += 1
 
