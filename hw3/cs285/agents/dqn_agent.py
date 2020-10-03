@@ -46,7 +46,7 @@ class DQNAgent(object):
         # HINT: the replay buffer used here is `MemoryOptimizedReplayBuffer`
             # in dqn_utils.py
         # self.replay_buffer_idx = TODO
-        self.replay_buffer_idx = self.replay_buffer.num_in_buffer
+        self.replay_buffer_idx = self.replay_buffer.store_frame(self.last_obs)
 
         eps = self.exploration.value(self.t)
 
@@ -77,7 +77,7 @@ class DQNAgent(object):
         # TODO store the result of taking this action into the replay buffer -----------------
         # HINT1: see your replay buffer's `store_effect` function
         # HINT2: one of the arguments you'll need to pass in is self.replay_buffer_idx from above
-        self.replay_buffer.store_effect(self.replay_buffer_idx, self.last_obs, rewards, done)
+        self.replay_buffer.store_effect(self.replay_buffer_idx, action, rewards, done)
 
         # TODO if taking this step resulted in done, reset the env (and the latest observation) --------------
         if done:

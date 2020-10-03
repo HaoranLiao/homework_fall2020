@@ -16,6 +16,6 @@ class ArgMaxPolicy(object):
         # at the current observation as the output
         # actions = TODO
         q_value = self.critic.qa_values(observation)
-        action = q_value.argmax(dim=1)
+        action = q_value.argmax(axis=1)
 
         return action.squeeze()

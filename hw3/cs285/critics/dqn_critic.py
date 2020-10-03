@@ -84,7 +84,7 @@ class DQNCritic(BaseCritic):
         # HINT: as you saw in lecture, this would be:
             #currentReward + self.gamma * qValuesOfNextTimestep * (not terminal)
         # target = TODO
-        target = reward_n + self.gamma * q_tp1 * ~terminal_n
+        target = reward_n + self.gamma * q_tp1 * torch.logical_not(terminal_n)
         target = target.detach()
 
         assert q_t_values.shape == target.shape
