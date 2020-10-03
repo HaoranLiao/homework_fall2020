@@ -1,4 +1,4 @@
-# HW1 solutions
+# HW3 Paste-Ins
 There's multiple ways to implement the code inside `MLP_policy.py`.
 
 ## `policies/MLP_policy.py`
@@ -9,11 +9,25 @@ def get_action(self, obs: np.ndarray) -> np.ndarray:
         observation = obs
     else:
         observation = obs[None]
-
     observation = ptu.from_numpy(observation)
     action_distribution = self(observation)
     action = action_distribution.sample()  # don't bother with rsample
     return ptu.to_numpy(action)
+def forward(self, observation: torch.FloatTensor):
+    if self.discrete:
+        logits = self.logits_na(observation)
+        action_distribution = distributions.Categorical(logits=logits)
+        return action_distribution
+    else:
+        batch_mean = self.mean_net(observation)
+        scale_tril = torch.diag(torch.exp(self.logstd))
+        batch_dim = batch_mean.shape[0]
+        batch_scale_tril = scale_tril.repeat(batch_dim, 1, 1)
+        action_distribution = distributions.MultivariateNormal(
+            batch_mean,
+            scale_tril=batch_scale_tril,
+        )
+        return action_distribution
 
 def forward(self, observation: torch.FloatTensor):
     if self.discrete:
@@ -31,45 +45,10 @@ def forward(self, observation: torch.FloatTensor):
         )
         return action_distribution
 ```
-### MLPPolicySL
-```
-def update(
-        self, observations, actions,
-        adv_n=None, acs_labels_na=None, qvals=None
-):
-    observations = ptu.from_numpy(observations)
-    actions = ptu.from_numpy(actions)
-    action_distribution = self(observations)
-    predicted_actions = action_distribution.rsample()
-    loss = self.loss(predicted_actions, actions)
-
-    self.optimizer.zero_grad()
-    loss.backward()
-    self.optimizer.step()
-
-    return {
-        'Training Loss': ptu.to_numpy(loss),
-    }
-```
-Note that another solution could ignore `self.loss` and simply use
-```
-    loss = - action_distribution.log_prob(actions).mean()
-```
 
 ## `infrastructure/rl_trainer.py`
 ```
-def train_agent(self):
-    all_logs = []
-    for train_step in range(self.params['num_agent_train_steps_per_iter']):
-        ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.sample(self.params['train_batch_size'])
-        train_log = self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
-        all_logs.append(train_log)
-    return all_logs
-```
-
-```
-def collect_training_trajectories(self, itr, load_initial_expertdata, collect_policy, batch_size):
-    # decide how much training data to collect + which policy to use to collect it
+def collect_training_trajectories(self, itr, initial_expertdata, collect_policy, num_transitions_to_sample, save_expert_data_to_disk=False):
     if itr == 0:
         if initial_expertdata is not None:
             paths = pickle.load(open(self.params['expert_data'], 'rb'))
@@ -92,7 +71,16 @@ def collect_training_trajectories(self, itr, load_initial_expertdata, collect_po
             pickle.dump(paths, file)
 
     return paths, envsteps_this_batch, train_video_paths
+
+def train_agent(self):
+    all_logs = []
+    for train_step in range(self.params['num_agent_train_steps_per_iter']):
+        ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.sample(self.params['train_batch_size'])
+        train_log = self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
+        all_logs.append(train_log)
+    return all_logs
 ```
+
 ## `infrastruction/utils.py`
 ```
 def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('rgb_array')):
@@ -100,8 +88,7 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     while True:
-        if render:
-            # pdb.set_trace()
+        if render:  # feel free to ignore this for now
             if 'rgb_array' in render_mode:
                 if hasattr(env.unwrapped, 'sim'):
                     if 'track' in env.unwrapped.model.camera_names:
@@ -130,9 +117,7 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
         else:
             terminals.append(0)
     return Path(obs, image_obs, acs, rewards, next_obs, terminals)
-```
-    
-```
+
 def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, render=False, render_mode=('rgb_array')):
 
     timesteps_this_batch = 0
@@ -148,8 +133,7 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
         print('At timestep:    ', timesteps_this_batch, '/', min_timesteps_per_batch, end='\r')
 
     return paths, timesteps_this_batch
-```
-```
+
 def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, render_mode=('rgb_array')):
 
     paths = []
@@ -159,42 +143,4 @@ def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, ren
         paths.append(path)
 
     return paths
-```
-
-## `infrastructure/pytorch_util.py`
-```
-def build_mlp(
-        input_size: int,
-        output_size: int,
-        n_layers: int,
-        size: int,
-        activation: Activation = 'tanh',
-        output_activation: Activation = 'identity',
-):
-    if isinstance(activation, str):
-        activation = _str_to_activation[activation]
-    if isinstance(output_activation, str):
-        output_activation = _str_to_activation[output_activation]
-    layers = []
-    in_size = input_size
-    for _ in range(n_layers):
-        layers.append(nn.Linear(in_size, size))
-        layers.append(activation)
-        in_size = size
-    layers.append(nn.Linear(in_size, output_size))
-    layers.append(output_activation)
-    return nn.Sequential(*layers)
-```
-## `infrastructure/replay_buffer.py`
-```
-def sample_random_data(self, batch_size):
-    assert (
-            self.obs.shape[0]
-            == self.acs.shape[0]
-            == self.rews.shape[0]
-            == self.next_obs.shape[0]
-            == self.terminals.shape[0]
-    )
-    rand_indices = np.random.permutation(self.obs.shape[0])[:batch_size]
-    return self.obs[rand_indices], self.acs[rand_indices], self.concatenated_rews[rand_indices], self.next_obs[rand_indices], self.terminals[rand_indices]
 ```
