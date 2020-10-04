@@ -87,6 +87,7 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
         #       that its dimensions match the reward
 
         loss_fn = nn.MSELoss()
+        #test
 
         for _ in range(self.num_target_updates):
             target = reward_n + self.gamma * self.critic_network(next_ob_no).squeeze(1) * torch.logical_not(terminal_n)
