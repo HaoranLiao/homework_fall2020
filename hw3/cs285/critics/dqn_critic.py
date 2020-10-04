@@ -76,7 +76,7 @@ class DQNCritic(BaseCritic):
             # target Q-network. See page 5 of https://arxiv.org/pdf/1509.06461.pdf for more details.
             # TODO
             _, ind = qa_tp1_values.max(dim=1)
-            q_tp1, _ = self.q_net(next_ob_no)[ind]
+            q_tp1 = self.q_net(next_ob_no)[ind]
         else:
             q_tp1, _ = qa_tp1_values.max(dim=1)
 
