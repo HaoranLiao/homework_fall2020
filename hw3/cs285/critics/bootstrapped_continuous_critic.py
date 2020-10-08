@@ -1,6 +1,7 @@
 from .base_critic import BaseCritic
 from torch import nn
 from torch import optim
+import torch
 
 from cs285.infrastructure import pytorch_util as ptu
 
@@ -88,8 +89,14 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
 
         loss_fn = nn.MSELoss()
 
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        terminal_n = ptu.from_numpy(terminal_n)
+        reward_n = ptu.from_numpy(reward_n)
+        ob_no = ptu.from_numpy(ob_no)
+
         for _ in range(self.num_target_updates):
-            target = reward_n + self.gamma * self.critic_network(next_ob_no).squeeze(1) * torch.logical_not(terminal_n)
+            with torch.no_grad():
+                target = reward_n + self.gamma * self.critic_network(next_ob_no).squeeze(1) * torch.logical_not(terminal_n)
 
             for _ in range(self.num_grad_steps_per_target_update):
                 loss = loss_fn(target, self.critic_network(ob_no).squeeze(1))
