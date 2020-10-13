@@ -66,7 +66,7 @@ def get_env_kwargs(env_name):
             'learning_starts': 1000,
             'learning_freq': 1,
             'frame_history_len': 1,
-            'target_update_freq': 1500,          #3000, 500, 10000
+            'target_update_freq': 3000,          #3000 (default), 500, 10000, 1500
             'grad_norm_clipping': 10,
             'lander': True,
             'num_timesteps': 500000,
