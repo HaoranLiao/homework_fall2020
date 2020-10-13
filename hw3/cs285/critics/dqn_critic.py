@@ -75,10 +75,10 @@ class DQNCritic(BaseCritic):
             # is being updated, but the Q-value for this action is obtained from the
             # target Q-network. See page 5 of https://arxiv.org/pdf/1509.06461.pdf for more details.
             # TODO
-            _, ind = qa_tp1_values.max(dim=1)
+            _, ind = self.q_net(next_ob_no).max(dim=1)
             q_tp1 = torch.zeros(len(ind))
             for i in range(len(ind)):
-                q_tp1[i] = self.q_net(next_ob_no)[i, ind[i]]
+                q_tp1[i] = qa_tp1_values[i, ind[i]]
         else:
             q_tp1, _ = qa_tp1_values.max(dim=1)
 
