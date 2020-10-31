@@ -80,8 +80,8 @@ class FFModel(nn.Module, BaseModel):
         # normalize input data to mean 0, std 1
         # obs_normalized = # TODO(Q1) -------------------
         # acs_normalized = # TODO(Q1) -------------------
-        obs_normalized = normalize(obs_unnormalized, obs_mean, obs_std)
-        acs_normalized = normalize(acs_unnormalized, acs_mean, acs_std)
+        obs_normalized = ptu.from_numpy(normalize(obs_unnormalized, obs_mean, obs_std))
+        acs_normalized = ptu.from_numpy(normalize(acs_unnormalized, acs_mean, acs_std))
 
         # predicted change in obs
         concatenated_input = torch.cat([obs_normalized, acs_normalized], dim=1)
@@ -92,7 +92,7 @@ class FFModel(nn.Module, BaseModel):
         # delta_pred_normalized = # TODO(Q1) ---------------------
         delta_pred_normalized = self.delta_network(concatenated_input)
         # next_obs_pred = # TODO(Q1) --------------------
-        next_obs_pred = obs_unnormalized + unnormalize(delta_pred_normalized, delta_mean, delta_std)
+        next_obs_pred = ptu.from_numpy(obs_unnormalized) + ptu.from_numpy(unnormalize(ptu.to_numpy(delta_pred_normalized), delta_mean, delta_std))
         return next_obs_pred, delta_pred_normalized
 
     def get_prediction(self, obs, acs, data_statistics):
@@ -113,7 +113,7 @@ class FFModel(nn.Module, BaseModel):
         prediction = self(obs, acs, **data_statistics)[0]
         # Hint: `self(...)` returns a tuple, but you only need to use one of the
         # outputs.
-        return prediction
+        return ptu.to_numpy(prediction)
 
     def update(self, observations, actions, next_observations, data_statistics):
         """
@@ -131,7 +131,7 @@ class FFModel(nn.Module, BaseModel):
         :return:
         """
         # target = # TODO(Q1) compute the normalized target for the model. ------------------
-        target = normalize(next_observations - observations, data_statistics['delta_mean'], data_statistics['delta_std'])
+        target = ptu.from_numpy(normalize(next_observations - observations, data_statistics['delta_mean'], data_statistics['delta_std']))
         # Hint: you should use `data_statistics['delta_mean']` and
         # `data_statistics['delta_std']`, which keep track of the mean
         # and standard deviation of the model.

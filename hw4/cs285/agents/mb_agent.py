@@ -50,9 +50,7 @@ class MBAgent(BaseAgent):
             # observations = # TODO(Q1) ---------------------
             # actions = # TODO(Q1) --------------------
             # next_observations = # TODO(Q1) ----------------------
-            observations = self.sample(num_data_per_ens)[0]
-            actions = self.sample(num_data_per_ens)[1]
-            next_observations = self.sample(num_data_per_ens)[3]
+            observations, actions, _, next_observations, _ = self.sample(num_data_per_ens)
 
             # use datapoints to update one of the dyn_models
             # model =  # TODO(Q1) -------------------
