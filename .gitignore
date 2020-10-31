@@ -1,7 +1,5 @@
 *.pyc
 hw1/cs285/.idea/workspace.xml
-*.xml
-*.xml
 *.icloud
 *.iml
 *.iml
@@ -13,3 +11,5 @@ hw4/cs285.egg-info/dependency_links.txt
 hw4/cs285.egg-info/PKG-INFO
 hw4/cs285.egg-info/SOURCES.txt
 hw4/cs285.egg-info/top_level.txt
+*.xml
+!hw4/cs285/envs/reacher/assets/sawyer.xml
