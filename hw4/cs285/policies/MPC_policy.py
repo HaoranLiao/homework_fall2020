@@ -60,13 +60,15 @@ class MPCPolicy(BasePolicy):
             predicted_sum_of_rewards_per_model, axis=0)  # [ens, N] --> N
 
         # pick the action sequence and return the 1st element of that sequence
-        best_action_sequence = None  # TODO (Q2)
-        action_to_take = None  # TODO (Q2)
+        # best_action_sequence = None  # TODO (Q2) ---------------------
+        # action_to_take = None  # TODO (Q2) ---------------------
+        best_action_sequence = candidate_action_sequences[np.argmax(predicted_rewards), :, :]
+        action_to_take = best_action_sequence[0, :]
+
         return action_to_take[None]  # Unsqueeze the first index
 
     def calculate_sum_of_rewards(self, obs, candidate_action_sequences, model):
         """
-
         :param obs: numpy array with the current observation. Shape [D_obs]
         :param candidate_action_sequences: numpy array with the candidate action
         sequences. Shape [N, H, D_action] where
@@ -77,7 +79,7 @@ class MPCPolicy(BasePolicy):
         :return: numpy array with the sum of rewards for each action sequence.
         The array should have shape [N].
         """
-        sum_of_rewards = None  # TODO (Q2)
+        # sum_of_rewards = None  # TODO (Q2) -------------------------
         # For each candidate action sequence, predict a sequence of
         # states for each dynamics model in your ensemble.
         # Once you have a sequence of predicted states from each model in
@@ -89,4 +91,14 @@ class MPCPolicy(BasePolicy):
         # Hint: Remember that the model can process observations and actions
         #       in batch, which can be much faster than looping through each
         #       action sequence.
+        predicted_obs = np.reshape([obs] * self.N, (self.N, 1, self.ob_dim))
+        for i in range(self.horizon):
+            predicted_obs = np.concatenate((predicted_obs, model.get_prediction(predicted_obs[:, i, :],
+                                                                                candidate_action_sequences[:, i, :],
+                                                                                self.data_statistics
+                                                                                )
+                                           ), dim=1)
+
+        sum_of_rewards = self.env.get_reward(predicted_obs[:, :-1, :], candidate_action_sequences)
+
         return sum_of_rewards
