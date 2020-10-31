@@ -93,12 +93,19 @@ class MPCPolicy(BasePolicy):
         #       action sequence.
         predicted_obs = np.reshape([obs] * self.N, (self.N, 1, self.ob_dim))
         for i in range(self.horizon):
-            predicted_obs = np.concatenate((predicted_obs, model.get_prediction(predicted_obs[:, i, :],
-                                                                                candidate_action_sequences[:, i, :],
-                                                                                self.data_statistics
-                                                                                )
-                                           ), dim=1)
+            new_pred_obs = np.reshape(model.get_prediction(predicted_obs[:, i, :],
+                                                           candidate_action_sequences[:, i, :],
+                                                           self.data_statistics
+                                                           ),
+                                      (self.N, 1, self.ob_dim))
+            predicted_obs = np.concatenate((predicted_obs, new_pred_obs), axis=1)
 
-        sum_of_rewards = self.env.get_reward(predicted_obs[:, :-1, :], candidate_action_sequences)
+        sum_of_rewards = []
+        for i in range(self.N):
+            sum_of_rewards.append(
+                np.sum(
+                    self.env.get_reward(predicted_obs[i, :-1, :], candidate_action_sequences[i, :, :])[0]
+                )
+            )
 
-        return sum_of_rewards
+        return np.array(sum_of_rewards)
