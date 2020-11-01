@@ -1,0 +1,21 @@
+MuJoCo Pro Lab license activation key, number 7228, type 6.
+
+Issued to Prof. Sergey Levine, Deep RL Class, UC Berkeley.
+
+Expires December 21, 2020.
+
+Do not share this file with anyone other than the users covered
+by your license agreement with Roboti LLC. This file activates
+MuJoCo Pro on any computer running any supported OS.
+
+Do not modify this file. Its entire content, including the
+plain text section, is used by the activation manager.
+
+1a8ce38a4eb1961e0eb869358dd6368b20c6c8125928df5dd9446c4f92171c5c
+743b7b69878ad81986059e9723ccc4eeea8f225912549f66c3b1e0885069e018
+63ce53f48d40b37d993db9b6b6275d69ebed63f0d086d060ada41be4fc48d8f3
+334a399109ae2d94b53e01e81d571487beb4c9bc7afaf7399ae80bb8439f1c73
+4cd72a756faf673527bcc48f3e428108c8ff1cb6ba5b30789499f209f9c50682
+dd76101b2c98e02ec80e1870122b6280187c818e6cc773544ea8d90e480b98f9
+2bffa503e1e3302fe54a809a14a01836a26a4874c4790626ce8fc227f75e108c
+656443288f9b95bcc244923ec7f98edcf2b2c533e62bb090cb4953c4f733df71
