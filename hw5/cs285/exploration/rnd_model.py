@@ -36,8 +36,8 @@ class RNDModel(nn.Module, BaseExplorationModel):
 
         self.f = ptu.build_mlp(self.ob_dim, self.output_size, self.n_layers, self.size)
         self.f_hat = ptu.build_mlp(self.ob_dim, self.output_size, self.n_layers, self.size)
-        init_method_1(self.f)
-        init_method_2(self.f_hat)
+        init_method_1(self.f[0])
+        init_method_2(self.f_hat[0])
         
         self.optimizer = self.optimizer_spec.constructor(
             self.f_hat.parameters(),
@@ -56,9 +56,8 @@ class RNDModel(nn.Module, BaseExplorationModel):
         # TODO: Get the prediction error for ob_no --------------------
         # HINT: Remember to detach the output of self.f!
         # error = None
-        ob_no = ptu.from_numpy(ob_no)
         error = self.loss(self.f(ob_no).detach(), self.f_hat(ob_no).detach())
-        return ptu.to_numpy(error)
+        return error
 
     def forward_np(self, ob_no):
         ob_no = ptu.from_numpy(ob_no)
