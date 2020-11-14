@@ -129,7 +129,6 @@ class RL_Trainer(object):
         :param start_relabel_with_expert: iteration at which to start relabel with expert
         :param expert_policy:
         """
-
         # init vars at beginning of training
         self.total_envsteps = 0
         self.start_time = time.time()
