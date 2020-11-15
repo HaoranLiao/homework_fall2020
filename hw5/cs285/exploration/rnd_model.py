@@ -62,7 +62,7 @@ class RNDModel(nn.Module, BaseExplorationModel):
         # TODO: Get the prediction error for ob_no --------------------
         # HINT: Remember to detach the output of self.f!
         # error = None
-        error = torch.sum(nn.MSEloss(reduction="none")(self.f(ob_no).detach(), self.f_hat(ob_no)), dim=-1)
+        error = torch.sum(nn.MSELoss(reduction="none")(self.f(ob_no).detach(), self.f_hat(ob_no)), dim=-1)
         return error
 
     def forward_np(self, ob_no):
