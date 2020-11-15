@@ -5,12 +5,18 @@ from torch import nn
 import torch
 
 def init_method_1(model):
-    model.weight.data.uniform_()
-    model.bias.data.uniform_()
+    try:
+        model.weight.data.uniform_()
+        model.bias.data.uniform_()
+    except:
+        pass
 
 def init_method_2(model):
-    model.weight.data.normal_()
-    model.bias.data.normal_()
+    try:
+        model.weight.data.normal_()
+        model.bias.data.normal_()
+    except:
+        pass
 
 
 class RNDModel(nn.Module, BaseExplorationModel):
@@ -36,8 +42,8 @@ class RNDModel(nn.Module, BaseExplorationModel):
 
         self.f = ptu.build_mlp(self.ob_dim, self.output_size, self.n_layers, self.size)
         self.f_hat = ptu.build_mlp(self.ob_dim, self.output_size, self.n_layers, self.size)
-        init_method_1(self.f[0])
-        init_method_2(self.f_hat[0])
+        self.f.apply(init_method_1)
+        self.f_hat.apply(init_method_2)
         
         self.optimizer = self.optimizer_spec.constructor(
             self.f_hat.parameters(),
@@ -56,7 +62,7 @@ class RNDModel(nn.Module, BaseExplorationModel):
         # TODO: Get the prediction error for ob_no --------------------
         # HINT: Remember to detach the output of self.f!
         # error = None
-        error = self.loss(self.f(ob_no).detach(), self.f_hat(ob_no).detach())
+        error = torch.sum(nn.MSEloss(reduction="none")(self.f(ob_no).detach(), self.f_hat(ob_no)), dim=-1)
         return error
 
     def forward_np(self, ob_no):
@@ -68,7 +74,7 @@ class RNDModel(nn.Module, BaseExplorationModel):
         # TODO: Update f_hat using ob_no -----------------
         # loss = None
         ob_no = ptu.from_numpy(ob_no)
-        loss = self.loss(self.f(ob_no), self.f_hat(ob_no))
+        loss = torch.mean(self(ob_no))
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
