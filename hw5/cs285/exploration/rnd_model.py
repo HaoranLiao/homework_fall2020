@@ -42,10 +42,10 @@ class RNDModel(nn.Module, BaseExplorationModel):
 
         self.f = ptu.build_mlp(self.ob_dim, self.output_size, self.n_layers, self.size)
         self.f_hat = ptu.build_mlp(self.ob_dim, self.output_size, self.n_layers, self.size)
-        # self.f.apply(init_method_1)
-        # self.f_hat.apply(init_method_2)
-        init_method_1(self.f[0])
-        init_method_2(self.f_hat[0])
+        self.f.apply(init_method_1)
+        self.f_hat.apply(init_method_2)
+        # init_method_1(self.f[0])
+        # init_method_2(self.f_hat[0])
         
         self.optimizer = self.optimizer_spec.constructor(
             self.f_hat.parameters(),
